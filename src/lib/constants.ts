@@ -3,10 +3,9 @@
 export const SITE = {
   name: "PopTheLogo",
   domain: "popthelogo.com",
-  tagline:
-    "Turn your idea into a logo in seconds. Free, fast, and no sign up required.",
+  tagline: "Free AI Logo Generator (No Sign Up)",
   description:
-    "PopTheLogo is a free AI logo maker. Type your idea, pick a style and aspect ratio, and get a professional logo instantly. No design skills and no payment required.",
+    "Create professional logos in seconds with AI. 100% free, high-resolution PNG download, no watermark, and no sign-up required. Try PopTheLogo now!",
   slogan: "Pop The Logo",
 } as const;
 
