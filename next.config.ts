@@ -7,14 +7,15 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'" + (isDev ? " 'unsafe-eval'" : ""),
+  "script-src 'self' 'unsafe-inline' https://analytics.ahrefs.com" +
+    (isDev ? " 'unsafe-eval'" : ""),
   // Inline styles are needed for server components + Radix; nonces are not used to keep it simple.
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   // Images: self + Pollinations (logo generation) + Supabase storage
   "img-src 'self' data: blob: https:",
-  // fetch/xhr to our own API + Pollinations + Supabase
-  "connect-src 'self' https://*.supabase.co https://image.pollinations.ai",
+  // fetch/xhr to our own API + Pollinations + Supabase + Ahrefs analytics beacon
+  "connect-src 'self' https://*.supabase.co https://image.pollinations.ai https://analytics.ahrefs.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

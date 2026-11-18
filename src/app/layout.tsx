@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
@@ -74,6 +75,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
+      {/* Ahrefs Analytics — beforeInteractive keeps the tag in the server-rendered <head>. */}
+      <Script
+        src="https://analytics.ahrefs.com/analytics.js"
+        data-key="/sx37rtdHcUK5ISTpWo++w"
+        strategy="beforeInteractive"
+      />
       <body className="min-h-screen bg-white font-sans antialiased">
         <Providers>
           <div className="flex min-h-screen flex-col">
