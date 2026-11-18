@@ -6,8 +6,16 @@ import { getPostBySlug, listPublishedPosts } from "@/lib/repositories/posts";
 import { SEED_POSTS } from "@/lib/fallback-seed";
 import { Markdown } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
-import { formatDate, readingTime } from "@/lib/utils";
+import { formatDate, readingTime, stripMarkdown } from "@/lib/utils";
 import { ContentSidebar } from "@/components/content-sidebar";
+
+/** Plain-text description used for metadata: prefers meta_description, falls back to excerpt. */
+function metaDescription(post: {
+  meta_description?: string | null;
+  excerpt?: string | null;
+}): string | undefined {
+  return stripMarkdown(post.meta_description || post.excerpt || "") || undefined;
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -31,12 +39,12 @@ export async function generateMetadata({
 
   return {
     title: post.meta_title || post.title,
-    description: post.meta_description || post.excerpt || undefined,
+    description: metaDescription(post),
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       type: "article",
       title: post.meta_title || post.title,
-      description: post.meta_description || post.excerpt || undefined,
+      description: metaDescription(post),
       url: `/blog/${post.slug}`,
       images: post.cover_image ? [{ url: post.cover_image }] : undefined,
       publishedTime: post.published_at ?? undefined,
@@ -46,7 +54,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: post.meta_title || post.title,
-      description: post.meta_description || post.excerpt || undefined,
+      description: metaDescription(post),
       images: post.cover_image ? [post.cover_image] : undefined,
     },
   };
@@ -58,12 +66,15 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!post) notFound();
 
   const minutes = readingTime(post.content);
+  // The page template renders the title as an H1; strip a duplicated leading H1 from the markdown body.
+  const body = post.content.replace(/^\s*#\s+.*\n+/, "").trim();
+  const articleExcerpt = post.excerpt ? stripMarkdown(post.excerpt) : "";
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
-    description: post.meta_description || post.excerpt || undefined,
+    description: metaDescription(post),
     image: post.cover_image || undefined,
     datePublished: post.published_at ?? post.created_at,
     dateModified: post.updated_at,
@@ -123,9 +134,9 @@ export default async function BlogPostPage({ params }: PageProps) {
           <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-ink">
             {post.title}
           </h1>
-          {post.excerpt && (
+          {articleExcerpt && (
             <p className="mt-4 text-lg leading-relaxed text-muted">
-              {post.excerpt}
+              {articleExcerpt}
             </p>
           )}
           <div className="mt-5 flex flex-wrap items-center gap-4 border-b border-line pb-6 text-sm text-muted">
@@ -151,7 +162,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         {/* Two-column layout: content + sidebar */}
         <div className="grid gap-10 lg:grid-cols-[1fr_340px]">
           <article className="min-w-0">
-            <Markdown content={post.content} />
+            <Markdown content={body} />
           </article>
           <div className="hidden lg:block">
             <ContentSidebar />

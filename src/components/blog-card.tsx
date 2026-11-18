@@ -12,8 +12,7 @@ interface BlogCardProps {
 
 export function BlogCard({ post }: BlogCardProps) {
   const minutes = readingTime(post.content);
-  const description =
-    post.excerpt || excerpt(post.content.replace(/^#.+\n/, ""), 140);
+  const description = excerpt(post.excerpt || post.content, 150);
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition-shadow hover:shadow-md">

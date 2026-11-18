@@ -34,11 +34,27 @@ export function slugify(input: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-/** Truncate text to a max length, adding an ellipsis when cut. */
+/** Convert markdown to plain text: links keep their text, emphasis/headers/code markers are removed. */
+export function stripMarkdown(md: string): string {
+  return md
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+    .replace(/^\s{0,3}>\s?/gm, "")
+    .replace(/(\*\*|__)(.*?)\1/g, "$2")
+    .replace(/(\*|_)(.*?)\1/g, "$2")
+    .replace(/`{1,3}([^`]*)`{1,3}/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Truncate plain text to a max length at a word boundary, adding an ellipsis when cut. */
 export function excerpt(text: string, max = 160): string {
-  const clean = text.replace(/[#*`>\-_~\[\]!]/g, "").replace(/\s+/g, " ").trim();
+  const clean = stripMarkdown(text);
   if (clean.length <= max) return clean;
-  return clean.slice(0, max).trimEnd() + "\u2026";
+  const cut = clean.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return (lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd() + "\u2026";
 }
 
 /** Sleep helper. */
